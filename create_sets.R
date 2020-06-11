@@ -26,7 +26,7 @@ instacart_data$last3_reorder_pct<-
   ifelse(is.na(instacart_data$last3_reorder_pct),
          0,instacart_data$last3_reorder_pct)
 
-instacart_data<-instacart_data[,-26] # deleting order number
+#instacart_data<-instacart_data[,-26] # deleting order number
 sum(is.na(instacart_data))
 sum(is.na(instacart_data$order_id)) 
 
