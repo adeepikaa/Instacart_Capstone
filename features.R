@@ -13,7 +13,7 @@ prod_features<-order_products_prior_all%>%
   group_by(product_id)%>%
   summarize(
             prod_pop_n=n(), 
-            prod_reord_pct=sum(reordered==1)/n(), 
+            prod_reord_tot=sum(reordered==1), 
             prod_org_flag=ifelse(grepl("Organic", first(product_name), fixed=TRUE),1,0),
             prod_avg_freq=ceiling(mean(days_since_prior_order, na.rm=TRUE)),
             .groups='drop')
@@ -60,7 +60,7 @@ user_features$user_pop_freq<-ifelse(is.na(user_features$user_pop_freq), 0, user_
 
 user_prod_features<-order_products_prior_all%>%
   group_by(user_id, product_id)%>%
-  summarize(user_prod_reord_pct=sum(reordered==1)/n(), 
+  summarize(user_prod_reord_tot=sum(reordered==1), 
             .groups='drop') 
 
 #####################################################################
