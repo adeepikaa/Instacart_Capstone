@@ -1,7 +1,7 @@
+user_prod_ids<-order_products_prior_all%>%distinct(user_id,product_id)
 
 
-instacart_data<-order_products_prior_all%>%
-  distinct(user_id,product_id)%>%
+instacart_data<-user_prod_ids%>%
   left_join(order_products_train_all, by=c("user_id", "product_id"))%>%
   select(user_id, product_id, order_id, buy=reordered)
 
@@ -26,13 +26,21 @@ instacart_data$last3_reorder_pct<-
   ifelse(is.na(instacart_data$last3_reorder_pct),
          0,instacart_data$last3_reorder_pct)
 
-#instacart_data<-instacart_data[,-26] # deleting order number
+instacart_data<-instacart_data[,-26] # deleting order number
+
+instacart_data<-instacart_data%>%
+  rename(
+    user_prod_reord_pct= user_prod_reord_tot
+  )
+
+
 sum(is.na(instacart_data))
-sum(is.na(instacart_data$order_id)) 
+sum(is.na(instacart_data$order_id))
 
 
-rm(user_prod_features, cart_size, user_features, prod_features, last3order, lastorder, products_all)
+rm(user_prod_features, cart_size, user_features, prod_features, last3order, lastorder)
 gc()
+
 
 
 user_ids<-orders%>%
@@ -79,4 +87,6 @@ length(unique(trainset$user_id))
 length(unique(testset$user_id))
 length(unique(evalset$user_id))
 
- #write.csv(instacart_data, "instacart_features.csv")
+#write.csv(instacart_data, "instacart_features.csv")
+
+rm(user_id_eval, user_id_test, user_id_train)

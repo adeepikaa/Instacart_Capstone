@@ -1,5 +1,3 @@
-
-
 cart_size<-order_products_prior_all%>% 
   group_by(order_id)%>%
   summarize(user_id=first(user_id), cart_size=max(add_to_cart_order), .groups='drop')%>%
@@ -9,14 +7,15 @@ cart_size<-order_products_prior_all%>%
 ###########################################
 # Product features
 
+
 prod_features<-order_products_prior_all%>%
   group_by(product_id)%>%
   summarize(
-            prod_pop_n=n(), 
-            prod_reord_tot=sum(reordered==1), 
-            prod_org_flag=ifelse(grepl("Organic", first(product_name), fixed=TRUE),1,0),
-            prod_avg_freq=ceiling(mean(days_since_prior_order, na.rm=TRUE)),
-            .groups='drop')
+    prod_pop_n=n(), 
+    prod_reord_tot=sum(reordered==1), 
+    prod_org_flag=ifelse(grepl("Organic", first(product_name), fixed=TRUE),1,0),
+    prod_avg_freq=ceiling(mean(days_since_prior_order, na.rm=TRUE)),
+    .groups='drop')
 
 prod_features$prod_avg_freq<-ifelse(is.na(prod_features$prod_avg_freq), 0, prod_features$prod_avg_freq)
 
@@ -84,5 +83,3 @@ lastorder<-order_products_prior_all%>%
   mutate(prev_flag=1)
 
 #####################################################################
-
-
