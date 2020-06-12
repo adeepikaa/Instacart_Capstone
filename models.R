@@ -1,15 +1,14 @@
 
 
-# "user_id"             "product_id"          "order_id"           
-# "buy"                 "user_avg_cart_size"  "prod_pop_n"         
-# "prod_reord_tot"      "prod_org_flag"       "prod_avg_freq"      
-# "produce_flag"        "dairy_eggs_flag"     "snacks_flag"        
-# "user_n_items"        "user_orders_n"       "user_pop_hr"        
-# "user_pop_day"        "user_pop_freq"       "user_med_hr"        
-# "user_med_day"        "user_med_freq"       "user_avg_hr"        
-# "user_avg_day"        "user_avg_freq"       "user_reord_pct"     
-# "user_prod_reord_pct" "prev_flag"           "last3_reorder_pct"  
-# "last3_flag"
+# [1] "user_id"              "product_id"           "order_id"            
+# [4] "buy"                  "user_avg_cart_size"   "prod_pop_n"          
+# [7] "prod_reord_tot"       "prod_org_flag"        "prod_avg_freq"       
+# [10] "produce_flag"         "dairy_eggs_flag"      "snacks_flag"         
+# [13] "user_n_items"         "user_orders_n"        "user_avg_hr"         
+# [16] "user_avg_day"         "user_avg_freq"        "user_reord_pct"      
+# [19] "user_prod_reord_pct"  "user_prod_cart_order" "prev_flag"           
+# [22] "last3_reorder_pct"    "last3_flag"
+
 xvalues<-c(            
   "buy",                 
   "user_avg_cart_size",           
@@ -19,14 +18,13 @@ xvalues<-c(
   "produce_flag",        
   "dairy_eggs_flag",     
   "snacks_flag",        
-  "user_n_items",               
-  "user_pop_hr",        
-  "user_pop_day",                       
+  "user_orders_n",               
   "user_avg_hr",        
   "user_avg_day",        
   "user_avg_freq",       
   "user_reord_pct",     
-  "user_prod_reord_pct", 
+  "user_prod_reord_pct",
+  "user_prod_cart_order",
   "prev_flag",           
   "last3_reorder_pct",  
   "last3_flag"
@@ -37,9 +35,9 @@ trainset<-trainset[,xvalues]
 evalset<-evalset[,xvalues]
 testset<-testset[,xvalues]
 
-#write.csv(trainset, "trainset.csv")
-#write.csv(testset, "testset.csv")
-#write.csv(evalset, "evalset.csv")
+# write.csv(trainset, "trainset.csv")
+# write.csv(testset, "testset.csv")
+# write.csv(evalset, "evalset.csv")
 
 get_result_stats<-function(x,y){
   cm<-table(Predict=x, Reference=y)
@@ -146,36 +144,24 @@ t
 # gives best mtry as 4
 
 
-# QDA: Quadratic Discrimant Analysis
-
-model_qda<-train(trainset[,-1], trainset$buy, method="qda")
-buy_qda<-predict(model_qda, evalset)
-qda_summary<-get_result_stats(buy_qda, evalset$buy)
-
-qda_y<- predict(model_qda, evalset, type="prob")[,2]
-pred <- prediction(qda_y, evalset$buy)
-qda_auc = performance(pred, measure = "auc")
-
-all_results<-rbind(all_results, data.frame(method="QDA", f1score=qda_summary$f1score, 
-                                           acc=qda_summary$acc, precision=qda_summary$precision,
-                                           recall=qda_summary$recall, AUC=round(qda_auc@y.values[[1]],6)))
-all_results%>%knitr::kable()
+# Variable Importance Plot
+imp <- as.data.frame(varImpPlot(model_forest))
+imp$varnames <- rownames(imp) # row names to column
+rownames(imp) <- NULL  
 
 
-# LDA: Linear Discrimant Analysis
+ggplot(imp, aes(x=reorder(varnames, -MeanDecreaseGini), weight=MeanDecreaseGini, fill=varnames)) + 
+  geom_bar() +
+  scale_fill_discrete(name="Variable Group") +
+  ylab("MeanDecreaseGini") +
+  xlab("Variable Name") +
+  theme(axis.text.x = element_text(face = "bold", size = 10, angle = 45, hjust = 1))+
+  theme(legend.position = "none")+
+  ggtitle("Variable Importance of Random Forest")
 
-model_lda<-train(trainset[,-1], trainset$buy, method="lda")
-buy_lda<-predict(model_lda, evalset)
-lda_summary<-get_result_stats(buy_lda, evalset$buy)
 
-lda_y<- predict(model_lda, evalset, type="prob")[,2]
-pred <- prediction(lda_y, evalset$buy)
-lda_auc = performance(pred, measure = "auc")
 
-all_results<-rbind(all_results, data.frame(method="LDA", f1score=lda_summary$f1score, 
-                                           acc=lda_summary$acc, precision=lda_summary$precision,
-                                           recall=lda_summary$recall, AUC=round(lda_auc@y.values[[1]],6)))
-all_results%>%knitr::kable()
+
 
 
 ##############################################################################
@@ -185,7 +171,7 @@ all_results%>%knitr::kable()
 
 get_cutoff<-function(x){
   
-  cutoff<-seq(0.1, 0.7, 0.05)
+  cutoff<-seq(0.1, 0.7, 0.025)
   f1s<-sapply(cutoff, function(z){
     y<-ifelse(x>z,1,0)
     scores<-get_result_stats(y, evalset$buy)
@@ -199,9 +185,10 @@ glm_cutoff<-get_cutoff(glm_y)
 glm_final_y<-ifelse(glm_y>glm_cutoff,1,0)
 glm_final_stats<-get_result_stats(glm_final_y, evalset$buy)
 
-lda_cutoff<-get_cutoff(lda_y) 
-lda_final_y<-ifelse(lda_y>lda_cutoff,1,0)
-lda_final_stats<-get_result_stats(lda_final_y, evalset$buy)
+tree_cutoff<-get_cutoff(tree_y) 
+tree_final_y<-ifelse(tree_y>tree_cutoff,1,0)
+tree_final_stats<-get_result_stats(tree_final_y, evalset$buy)
+
 
 rf_cutoff<-get_cutoff(rf_y) 
 rf_final_y<-ifelse(rf_y>rf_cutoff,1,0)

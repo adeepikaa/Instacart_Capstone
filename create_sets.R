@@ -17,16 +17,15 @@ instacart_data<-instacart_data%>%
 
 
 
-#instacart_data$prod_org_flag<-instacart_data$prod_org_flag%>%factor(.)
 instacart_data$prev_flag<-ifelse(is.na(instacart_data$prev_flag),0,1)
-#%>%factor(.)
+
 
 instacart_data$last3_flag<-ifelse(is.na(instacart_data$last3_flag),0,1)
 instacart_data$last3_reorder_pct<-
   ifelse(is.na(instacart_data$last3_reorder_pct),
          0,instacart_data$last3_reorder_pct)
 
-instacart_data<-instacart_data[,-26] # deleting order number
+instacart_data<-instacart_data[,-21] # deleting order number
 
 instacart_data<-instacart_data%>%
   rename(
@@ -41,7 +40,12 @@ sum(is.na(instacart_data$order_id))
 rm(user_prod_features, cart_size, user_features, prod_features, last3order, lastorder)
 gc()
 
-
+instacart_data$prod_org_flag<-as.factor(instacart_data$prod_org_flag)
+instacart_data$produce_flag<-as.factor(instacart_data$produce_flag)
+instacart_data$dairy_eggs_flag<-as.factor(instacart_data$dairy_eggs_flag)
+instacart_data$snacks_flag<-as.factor(instacart_data$snacks_flag)
+instacart_data$prev_flag<-as.factor(instacart_data$prev_flag)
+instacart_data$last3_flag<-as.factor(instacart_data$last3_flag)
 
 user_ids<-orders%>%
   filter(eval_set=="train")%>%

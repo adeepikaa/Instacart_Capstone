@@ -28,10 +28,8 @@ length(unique(departments$department))
 length(unique(products$department_id))
 length(unique(orders$user_id))
 
-
-length(unique(orders$user_id))
-
-max(orders$order_number)
+######
+# Clean orders table to remove test data 
 
 sum(orders$eval_set=="test")
 sum(orders$eval_set=="train")
