@@ -50,26 +50,22 @@ get_result_stats<-function(x,y){
 }
 
 #######################################################
-# Base model 1
-base_yhat<-
-  ifelse(evalset$user_prod_reord_pct>0.5, 1,0)%>%
-  factor(.) 
 
-base_summary<-get_result_stats(base_yhat, evalset$buy)
+# Naive Bayes
 
-all_results<-data.frame(method="Base: User/Product Reord %", f1score=base_summary$f1score, 
-                        acc=base_summary$acc, precision=base_summary$precision,
-                        recall=base_summary$recall, AUC="N/A")
+model_nb<-train(trainset[,-1], trainset$buy, method="naive_bayes")
+buy_nb<-predict(model_nb, evalset)
 
-# Base model 2
+nb_summary<-get_result_stats(buy_nb, evalset$buy)
 
-base_prev_yhat<-evalset$prev_flag
+nb_y<- predict(model_nb, evalset, type="prob")[,2]
+pred <- prediction(nb_y, evalset$buy)
+roc.perf = performance(pred, measure = "tpr", x.measure = "fpr")
+nb_auc = performance(pred, measure = "auc")
 
-base_prev_summary<-get_result_stats(base_prev_yhat, evalset$buy)
-
-all_results<-rbind(all_results, data.frame(method="Base: Last order", f1score=base_prev_summary$f1score, 
-                                           acc=base_prev_summary$acc, precision=base_prev_summary$precision,
-                                           recall=base_prev_summary$recall, AUC="N/A"))
+all_results<-data.frame(method="Base: Naive Bayes", f1score=nb_summary$f1score, 
+                        acc=nb_summary$acc, precision=nb_summary$precision,
+                        recall=nb_summary$recall, AUC=round(nb_auc@y.values[[1]],6))
 
 
 # Logistic Regression
