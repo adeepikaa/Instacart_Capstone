@@ -60,7 +60,7 @@ last3order<-order_products_prior_all%>%
   filter(order_number==max(order_number)|order_number==max(order_number)-1|order_number==max(order_number)-2)%>%
   mutate(last3_flag=1)%>%
   group_by(user_id, product_id)%>%
-  summarize(last3_reorder_pct=sum(reordered)/n(), 
+  summarize(last3_reorder_pct=sum(reordered)/3, 
             last3_flag=first(last3_flag), 
             .groups='drop')
 
