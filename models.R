@@ -194,8 +194,8 @@ rf_final_stats<-get_result_stats(rf_final_y, evalset$buy)
 ################################################################
 # Test Data Results
 
-test_pred_y<- predict(model_glm, testset, type="prob")[,2]
-test_final_y<-ifelse(test_pred_y>glm_cutoff,1,0)
+test_pred_y<- predict(model_forest, testset, type="prob")[,2]
+test_final_y<-ifelse(test_pred_y>rf_cutoff,1,0)
 test_stats<-get_result_stats(test_final_y, testset$buy)
 test_stats
 
