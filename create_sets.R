@@ -32,6 +32,7 @@ instacart_data<-instacart_data%>%
     user_prod_reord_pct= user_prod_reord_tot
   )
 
+instacart_data$user_prod_reord_pct<-instacart_data$user_prod_reord_pct/instacart_data$user_orders_n
 
 sum(is.na(instacart_data))
 sum(is.na(instacart_data$order_id))
