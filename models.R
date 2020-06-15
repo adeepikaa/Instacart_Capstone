@@ -177,14 +177,6 @@ get_cutoff<-function(x){
   return(cutoff[which.max(f1s)])
 }
 
-glm_cutoff<-get_cutoff(glm_y) 
-glm_final_y<-ifelse(glm_y>glm_cutoff,1,0)
-glm_final_stats<-get_result_stats(glm_final_y, evalset$buy)
-
-tree_cutoff<-get_cutoff(tree_y) 
-tree_final_y<-ifelse(tree_y>tree_cutoff,1,0)
-tree_final_stats<-get_result_stats(tree_final_y, evalset$buy)
-
 
 rf_cutoff<-get_cutoff(rf_y) 
 rf_final_y<-ifelse(rf_y>rf_cutoff,1,0)
