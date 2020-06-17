@@ -1,3 +1,5 @@
+# Reading all the csv files which togther have the Instacart Market Basket Analysis data
+
 aisles = read.csv('data/aisles.csv')
 departments = read.csv('data/departments.csv')
 products = read.csv('data/products.csv')
@@ -5,12 +7,15 @@ orders = read.csv('data/orders.csv')
 order_products_prior = read.csv('data/order_products__prior.csv')
 order_products_train = read.csv('data/order_products__train.csv')
 
+# Loading different libraries
 library(dplyr)
 library(caret)
 library(e1071) 
 library(randomForest)
 library(ROCR)
 library(kernlab)
+
+# Option to use 6 significant sigits after the decimal point
 options(digits=6)
 
 ## getting to know the data:
@@ -29,28 +34,31 @@ length(unique(products$department_id))
 length(unique(orders$user_id))
 
 ######
-# Clean orders table to remove test data 
+# Counting orders/products different sets
 
 sum(orders$eval_set=="test")
 sum(orders$eval_set=="train")
 sum(orders$eval_set=="prior")
 
 
-
+# Join Products and Aisles
 products_all<-products%>%
   left_join(aisles, by.x=aisle_id, by.y=id)%>%
   left_join(departments, by.x=department_id, by.y=id)
 
-
+# Join the orders in the dataset that has order ids the task wishes to predict with 
+# more details from the orders file and join the product descriptions
 order_products_train_all<-order_products_train %>%
   left_join(orders, by="order_id")%>%
   left_join(products_all, by="product_id")
 
-
+# Join the orders in the dataset that has order ids from the past with 
+# more details from the orders file and join the product descriptions
 order_products_prior_all<-order_products_prior %>%
   left_join(orders, by="order_id")%>%
   left_join(products_all, by="product_id") 
 
+# counting number of orders in the past and present list of orders 
 total_orders_prior<-length(unique(order_products_prior_all$order_id))
 total_orders_train<-length(unique(order_products_train_all$order_id))
 
