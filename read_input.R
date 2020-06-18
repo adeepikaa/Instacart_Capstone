@@ -1,4 +1,4 @@
-# Reading all the csv files which togther have the Instacart Market Basket Analysis data
+# Reading all the csv files which together have the Instacart Market Basket Analysis data
 
 # Data source: https://www.kaggle.com/c/instacart-market-basket-analysis
 # The data must be downloaded from this website and the csv files must be
