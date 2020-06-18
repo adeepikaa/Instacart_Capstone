@@ -16,3 +16,5 @@ features_explore.R    : Analysis of features
 create_sets.R         : combine features and create train and test sets
 
 models.R              : run all model analysis
+
+insta_ppt.pptx.       : presentation of the project
