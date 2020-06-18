@@ -11,7 +11,7 @@
 # [19] "user_prod_reord_pct"  "user_prod_cart_order" "p rev_flag"           
 # [22] "last3_reorder_pct"    "last3_flag"
 
-# selected specific features based on corelation analysis
+# selected specific features based on correlation analysis
 xvalues<-c(            
   "buy",                 
   "user_avg_cart_size",           
@@ -248,7 +248,7 @@ final_stats
 # Test Dataset Results
 ################################################################
 
-# Use Naive Bayes model to predict probablities
+# Use Naive Bayes model to predict probabilities
 test_pred_y<- predict(model_nb, testset, type="prob")[,2]
 
 # Use cutoff from Random forest analysis to cutoff the test dataset
