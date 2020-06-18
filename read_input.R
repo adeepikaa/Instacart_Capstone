@@ -1,6 +1,9 @@
-# Reading all the csv files which togther have the Instacart Market Basket Analysis data
+# Reading all the csv files which together have the Instacart Market Basket Analysis data
 
 # Data source: https://www.kaggle.com/c/instacart-market-basket-analysis
+# The data must be downloaded from this website and the csv files must be
+# saved in a data folder or directory inside the working directory for the
+# code to run smoothly.
 
 # lists all aisles in the store
 aisles = read.csv('data/aisles.csv')
@@ -49,7 +52,7 @@ library(randomForest)
 library(ROCR)
 library(kernlab)
 
-# Option to use 6 significant sigits after the decimal point
+# Option to use 6 significant digits after the decimal point
 options(digits=6)
 
 ## getting to know the data:

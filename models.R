@@ -11,7 +11,7 @@
 # [19] "user_prod_reord_pct"  "user_prod_cart_order" "p rev_flag"           
 # [22] "last3_reorder_pct"    "last3_flag"
 
-# selected specific features based on corelation analysis
+# selected specific features based on correlation analysis
 xvalues<-c(            
   "buy",                 
   "user_avg_cart_size",           
@@ -63,61 +63,6 @@ get_result_stats<-function(x,y){
 }
 
 #######################################################
-# Naive Bayes
-#######################################################
-
-# use caret package train function
-model_nb<-train(trainset[,-1], trainset$buy, method="naive_bayes")
-
-# predict on evalset
-buy_nb<-predict(model_nb, evalset)
-
-# summarize metrics
-nb_summary<-get_result_stats(buy_nb, evalset$buy)
-
-# use probablity predictions to calculate area under curve
-nb_y<- predict(model_nb, evalset, type="prob")[,2]
-pred <- prediction(nb_y, evalset$buy)
-nb_auc = performance(pred, measure = "auc")
-
-# summary table to add all model results
-all_results<-data.frame(method="Naive Bayes", f1score=nb_summary$f1score, 
-                        acc=nb_summary$acc, precision=nb_summary$precision,
-                        recall=nb_summary$recall, AUC=round(nb_auc@y.values[[1]],6))
-
-# Plot of ROC curve
-roc.perf = performance(pred, measure = "tpr", x.measure = "fpr")
-plot(roc.perf)
-abline(a=0, b= 1)
-
-
-#######################################################
-# Logistic Regression: GLM
-#######################################################
-
-# use caret package train function
-model_glm<-train(trainset[,-1], trainset$buy, method="glm")
-
-# predict on evalset
-buy_glm<-predict(model_glm, evalset)
-
-# summarize metrics
-glm_summary<-get_result_stats(buy_glm, evalset$buy)
-
-# use probablity predictions to calculate area under curve
-glm_y<- predict(model_glm, evalset, type="prob")[,2]
-pred <- prediction(glm_y, evalset$buy)
-glm_auc = performance(pred, measure = "auc")
-
-
-# summary table to add all model results
-all_results<-rbind(all_results, data.frame(method="Logistic Regression", f1score=glm_summary$f1score, 
-                                           acc=glm_summary$acc, precision=glm_summary$precision,
-                                           recall=glm_summary$recall, AUC=round(glm_auc@y.values[[1]],6)))
-
-
-
-#######################################################
 # Classification Tree: CART
 #######################################################
 
@@ -136,9 +81,9 @@ pred <- prediction(tree_y,evalset$buy)
 tree_auc = performance(pred, measure = "auc")
 
 # summary table to add all model results
-all_results<-rbind(all_results, data.frame(method="CART", f1score=tree_summary$f1score, 
+all_results<-data.frame(method="CART", f1score=tree_summary$f1score, 
                                            acc=tree_summary$acc, precision=tree_summary$precision,
-                                           recall=tree_summary$recall, AUC=round(tree_auc@y.values[[1]],6)))
+                                           recall=tree_summary$recall, AUC=round(tree_auc@y.values[[1]],6))
 
 # fine tuning of cp parameter
 plot(model_tree)
@@ -146,6 +91,11 @@ plot(model_tree)
 # Classification Tree plot
 plot(model_tree$finalModel)
 text(model_tree$finalModel)
+
+# Plot of ROC curve
+roc.perf = performance(pred, measure = "tpr", x.measure = "fpr")
+plot(roc.perf)
+abline(a=0, b= 1)
 
 
 
@@ -171,7 +121,7 @@ forest_auc = performance(pred, measure = "auc")
 all_results<-rbind(all_results, data.frame(method="Random Forest", f1score=rf_summary$f1score, 
                                            acc=rf_summary$acc, precision=rf_summary$precision,
                                            recall=rf_summary$recall, AUC=round(forest_auc@y.values[[1]],6)))
-all_results%>%knitr::kable()
+
 
 
 # Fine tuning of mtry
@@ -202,8 +152,63 @@ ggplot(imp, aes(x=reorder(varnames, -MeanDecreaseGini), weight=MeanDecreaseGini,
   ggtitle("Variable Importance of Random Forest")
 
 
+
+#######################################################
+# Naive Bayes
+#######################################################
+
+# use caret package train function
+model_nb<-train(trainset[,-1], trainset$buy, method="naive_bayes")
+
+# predict on evalset
+buy_nb<-predict(model_nb, evalset)
+
+# summarize metrics
+nb_summary<-get_result_stats(buy_nb, evalset$buy)
+
+# use probablity predictions to calculate area under curve
+nb_y<- predict(model_nb, evalset, type="prob")[,2]
+pred <- prediction(nb_y, evalset$buy)
+nb_auc = performance(pred, measure = "auc")
+
+# summary table to add all model results
+all_results<-rbind(all_results, data.frame(method="Naive Bayes", f1score=nb_summary$f1score, 
+                        acc=nb_summary$acc, precision=nb_summary$precision,
+                        recall=nb_summary$recall, AUC=round(nb_auc@y.values[[1]],6)))
+
+# Plot of ROC curve
+roc.perf = performance(pred, measure = "tpr", x.measure = "fpr")
+plot(roc.perf)
+abline(a=0, b= 1)
+
+#######################################################
+# Logistic Regression: GLM
+#######################################################
+
+# use caret package train function
+model_glm<-train(trainset[,-1], trainset$buy, method="glm")
+
+# predict on evalset
+buy_glm<-predict(model_glm, evalset)
+
+# summarize metrics
+glm_summary<-get_result_stats(buy_glm, evalset$buy)
+
+# use probablity predictions to calculate area under curve
+glm_y<- predict(model_glm, evalset, type="prob")[,2]
+pred <- prediction(glm_y, evalset$buy)
+glm_auc = performance(pred, measure = "auc")
+
+
+# summary table to add all model results
+all_results<-rbind(all_results, data.frame(method="Logistic Regression", f1score=glm_summary$f1score, 
+                                           acc=glm_summary$acc, precision=glm_summary$precision,
+                                           recall=glm_summary$recall, AUC=round(glm_auc@y.values[[1]],6)))
+
+all_results%>%knitr::kable()
+
 ##############################################################################
-# Based on results summary the best Fscore is for the Random Forest model. Hence, this 
+# Based on results summary the best Fscore is for the Naive Bayes model. Hence, this 
 # has been chosen as the final model.
 
 # However, due to the imbalanced nature of the dataset the optimum cutoff to 
@@ -229,25 +234,25 @@ get_cutoff<-function(x){
   return(cutoff[which.max(f1s)])
 }
 
-# run cutoff analysis for random forest predictions
-rf_cutoff<-get_cutoff(rf_y) 
+# run cutoff analysis for best model predictions
+final_cutoff<-get_cutoff(nb_y) 
 
 # predict outcomes based on new cutoff
-rf_final_y<-ifelse(rf_y>rf_cutoff,1,0)
+final_y<-ifelse(nb_y>final_cutoff,1,0)
 
 # final summary for train/test data
-rf_final_stats<-get_result_stats(rf_final_y, evalset$buy)
-
+final_stats<-get_result_stats(final_y, evalset$buy)
+final_stats
 
 ################################################################
 # Test Dataset Results
 ################################################################
 
-# Use random forest model to predict probablities
-test_pred_y<- predict(model_forest, testset, type="prob")[,2]
+# Use Naive Bayes model to predict probabilities
+test_pred_y<- predict(model_nb, testset, type="prob")[,2]
 
 # Use cutoff from Random forest analysis to cutoff the test dataset
-test_final_y<-ifelse(test_pred_y>rf_cutoff,1,0)
+test_final_y<-ifelse(test_pred_y>final_cutoff,1,0)
 
 # get final summary
 test_stats<-get_result_stats(test_final_y, testset$buy)
