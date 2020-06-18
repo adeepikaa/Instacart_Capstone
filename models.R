@@ -8,7 +8,7 @@
 # [10] "produce_flag"         "dairy_eggs_flag"      "snacks_flag"         
 # [13] "user_n_items"         "user_orders_n"        "user_avg_hr"         
 # [16] "user_avg_day"         "user_avg_freq"        "user_reord_pct"      
-# [19] "user_prod_reord_pct"  "user_prod_cart_order" "prev_flag"           
+# [19] "user_prod_reord_pct"  "user_prod_cart_order" "p rev_flag"           
 # [22] "last3_reorder_pct"    "last3_flag"
 
 # selected specific features based on corelation analysis
@@ -34,9 +34,9 @@ xvalues<-c(
 )
 
 # reducing dataset to contain only features and dependent variable
-trainset<-trainset[,xvalues]
-evalset<-evalset[,xvalues]
-testset<-testset[,xvalues]
+trainset<-train_set[,xvalues]
+evalset<-eval_set[,xvalues]
+testset<-test_set[,xvalues]
 
 # write.csv(trainset, "trainset.csv")
 # write.csv(testset, "testset.csv")
@@ -49,7 +49,8 @@ testset<-testset[,xvalues]
 # between the two classes are significantly difficult. Hence using only accuracy
 # as a measurement is insufficient
 
-# F score and area under ROC curve have been used to analyze models
+# F score and area under ROC curve have been used to analyze models. However, final
+# decision to pick model was decided based on F Score
 
 get_result_stats<-function(x,y){
   cm<-table(Predict=x, Reference=y)
@@ -62,7 +63,7 @@ get_result_stats<-function(x,y){
 }
 
 #######################################################
-# Naive Bayes: Baseline model
+# Naive Bayes
 #######################################################
 
 # use caret package train function
@@ -74,13 +75,13 @@ buy_nb<-predict(model_nb, evalset)
 # summarize metrics
 nb_summary<-get_result_stats(buy_nb, evalset$buy)
 
-# use probablity predictions to calculate area unde curve
+# use probablity predictions to calculate area under curve
 nb_y<- predict(model_nb, evalset, type="prob")[,2]
 pred <- prediction(nb_y, evalset$buy)
 nb_auc = performance(pred, measure = "auc")
 
 # summary table to add all model results
-all_results<-data.frame(method="Base: Naive Bayes", f1score=nb_summary$f1score, 
+all_results<-data.frame(method="Naive Bayes", f1score=nb_summary$f1score, 
                         acc=nb_summary$acc, precision=nb_summary$precision,
                         recall=nb_summary$recall, AUC=round(nb_auc@y.values[[1]],6))
 
@@ -103,7 +104,7 @@ buy_glm<-predict(model_glm, evalset)
 # summarize metrics
 glm_summary<-get_result_stats(buy_glm, evalset$buy)
 
-# use probablity predictions to calculate area unde curve
+# use probablity predictions to calculate area under curve
 glm_y<- predict(model_glm, evalset, type="prob")[,2]
 pred <- prediction(glm_y, evalset$buy)
 glm_auc = performance(pred, measure = "auc")
@@ -129,7 +130,7 @@ buy_tree<-predict(model_tree, evalset)
 # summarize metrics
 tree_summary<-get_result_stats(buy_tree, evalset$buy)
 
-# use probablity predictions to calculate area unde curve
+# use probablity predictions to calculate area under curve
 tree_y<- predict(model_tree, evalset, type="prob")[,2]
 pred <- prediction(tree_y,evalset$buy)
 tree_auc = performance(pred, measure = "auc")
@@ -161,7 +162,7 @@ buy_rf<-predict(model_forest, evalset)
 # summarize metrics
 rf_summary<-get_result_stats(buy_rf, evalset$buy)
 
-# use probablity predictions to calculate area unde curve
+# use probablity predictions to calculate area under curve
 rf_y<- predict(model_forest, evalset, type="prob")[,2]
 pred <- prediction(rf_y, evalset$buy)
 forest_auc = performance(pred, measure = "auc")
@@ -202,8 +203,7 @@ ggplot(imp, aes(x=reorder(varnames, -MeanDecreaseGini), weight=MeanDecreaseGini,
 
 
 ##############################################################################
-# Based on results summary the best area under the curve (which is the preferred 
-# metric for imbalanced datasets) is for the Random Forest model. Hence, this 
+# Based on results summary the best Fscore is for the Random Forest model. Hence, this 
 # has been chosen as the final model.
 
 # However, due to the imbalanced nature of the dataset the optimum cutoff to 

@@ -84,7 +84,7 @@ user_ids<-orders%>%
 # This dataset contains 3 million orders in past which totals to about 34million 
 # products in all with about 200K users
 # The Kaggle task includes dataset in which there are 130K users with orders in the 
-# order_products_train which has the nth orders which need to be predicted
+# order_products_train which has the nth orders for each user that need to be predicted
 # This huge dataset requires high RAM infrastructure that is currently unavailable 
 # to the author. Hence, reduced the dataset to include 10% of the users in the analysis
 # That means number of users used for predictive analysis is about 13K which comes to 
@@ -93,7 +93,8 @@ user_ids<-orders%>%
 # Though the user ids have been reduced all features related to products have been taken
 # from the original dataset
 
-# reducing user ids to 10%
+
+# randomly reducing user ids to 10%
 set.seed("123")
 index <- createDataPartition(y = user_ids, times = 1, p = 0.1, list = FALSE)
 user_ids<-user_ids[index]
@@ -120,34 +121,34 @@ rm(temp, test_index, eval_index,index)
 
 
 # merging user ids to get all features
-trainset<-instacart_data%>%
+train_set<-instacart_data%>%
   inner_join(data.frame(user_id=user_id_train), by.x=user_id, by.y=user_id)
 
-evalset<-instacart_data%>%
+eval_set<-instacart_data%>%
   inner_join(data.frame(user_id=user_id_eval), by.x=user_id, by.y=user_id)
 
-testset<-instacart_data%>%
+test_set<-instacart_data%>%
   inner_join(data.frame(user_id=user_id_test), by.x=user_id, by.y=user_id)
 
 
-nrow(trainset)
+nrow(train_set)
 # trainset has 547802 observations
 
-nrow(testset)
+nrow(test_set)
 # testset has 166744 observations
 
-nrow(evalset)
+nrow(eval_set)
 # evalset has 135834 observations
 
 
-length(unique(trainset$user_id))
-# trainset has  users
+length(unique(train_set$user_id))
+# trainset has  8396 users
 
-length(unique(testset$user_id))
-# testset has users
+length(unique(test_set$user_id))
+# testset has 2628 users
 
-length(unique(evalset$user_id))
-# evalset has users
+length(unique(eval_set$user_id))
+# evalset has 2100 users
 
 #write.csv(instacart_data, "instacart_features.csv")
 

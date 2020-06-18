@@ -4,7 +4,7 @@
 source("read_input.R")
 
 # Preliminary data exploration, however further data analysis was moved to Tableau 
-# by using CSV file to save the dataset and load in Tableau
+# by saving the dataset to CSV file and load in Tableau
 source("data_explore.R")
 
 # Features are defined in this file based on all Prior Order data
