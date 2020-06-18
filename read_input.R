@@ -1,11 +1,45 @@
 # Reading all the csv files which togther have the Instacart Market Basket Analysis data
 
+# Data source: https://www.kaggle.com/c/instacart-market-basket-analysis
+
+# lists all aisles in the store
 aisles = read.csv('data/aisles.csv')
+# Data dict: aisle name and aisle id
+
+# lists all aisles in the store
 departments = read.csv('data/departments.csv')
+# Data dict:department name and department id
+
+# lists all aisles in the store
 products = read.csv('data/products.csv')
+# Data dict:product name, product id, aisle id and department id to which the product belongs
+
+# lists all orders ( previous and current nth orders that need prediction)
 orders = read.csv('data/orders.csv')
+# data dict: 
+#   order_id unique id for the order
+#   user_id: id of user who placed the order
+#   order_number: order number for that user (identifies which order in the past)
+#   order_dow: day of the week the order was placed
+#   order_hr:  hour of the day the order was placed
+
+#lists all previous orders
 order_products_prior = read.csv('data/order_products__prior.csv')
+# data dict: 
+#   order_id unique id for the order
+#   product_id: id of the product the user ordered in that order
+#   add_to_car_order: order in which the product was added to the cart
+#   reordered: 1 indicated user ordered it before, 
+#              0 indicates user ordered a new product that was never ordered by this user
+
+# lists all orders that need prediction
 order_products_train = read.csv('data/order_products__train.csv')
+# data dict: 
+#   order_id unique id for the order
+#   product_id: id of the product the user ordered in that order
+#   add_to_car_order: order in which the product was added to the cart
+#   reordered: 1 indicated user ordered it before, 
+#              0 indicates user ordered a new product that was never ordered by this user
 
 # Loading different libraries
 library(dplyr)
