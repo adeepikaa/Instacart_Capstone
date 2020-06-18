@@ -1,4 +1,6 @@
+# This file contains all the different models evaluated
 
+# this is a list of all features 
 
 # [1] "user_id"              "product_id"           "order_id"            
 # [4] "buy"                  "user_avg_cart_size"   "prod_pop_n"          
@@ -9,6 +11,7 @@
 # [19] "user_prod_reord_pct"  "user_prod_cart_order" "prev_flag"           
 # [22] "last3_reorder_pct"    "last3_flag"
 
+# selected specific features based on corelation analysis
 xvalues<-c(            
   "buy",                 
   "user_avg_cart_size",           
@@ -30,7 +33,7 @@ xvalues<-c(
   "last3_flag"
 )
 
-
+# reducing dataset to contain only features and dependent variable
 trainset<-trainset[,xvalues]
 evalset<-evalset[,xvalues]
 testset<-testset[,xvalues]
@@ -38,6 +41,15 @@ testset<-testset[,xvalues]
 # write.csv(trainset, "trainset.csv")
 # write.csv(testset, "testset.csv")
 # write.csv(evalset, "evalset.csv")
+
+
+#######################################################
+# User defined function to create different metrics for classification analysis
+# This dataset is an imbalanced dataset that means the number of observations
+# between the two classes are significantly difficult. Hence using only accuracy
+# as a measurement is insufficient
+
+# F score and area under ROC curve have been used to analyze models
 
 get_result_stats<-function(x,y){
   cm<-table(Predict=x, Reference=y)
@@ -50,85 +62,118 @@ get_result_stats<-function(x,y){
 }
 
 #######################################################
+# Naive Bayes: Baseline model
+#######################################################
 
-# Naive Bayes
-
+# use caret package train function
 model_nb<-train(trainset[,-1], trainset$buy, method="naive_bayes")
+
+# predict on evalset
 buy_nb<-predict(model_nb, evalset)
 
+# summarize metrics
 nb_summary<-get_result_stats(buy_nb, evalset$buy)
 
+# use probablity predictions to calculate area unde curve
 nb_y<- predict(model_nb, evalset, type="prob")[,2]
 pred <- prediction(nb_y, evalset$buy)
-roc.perf = performance(pred, measure = "tpr", x.measure = "fpr")
 nb_auc = performance(pred, measure = "auc")
 
+# summary table to add all model results
 all_results<-data.frame(method="Base: Naive Bayes", f1score=nb_summary$f1score, 
                         acc=nb_summary$acc, precision=nb_summary$precision,
                         recall=nb_summary$recall, AUC=round(nb_auc@y.values[[1]],6))
 
-
-# Logistic Regression
-
-model_glm<-train(trainset[,-1], trainset$buy, method="glm")
-buy_glm<-predict(model_glm, evalset)
-
-glm_summary<-get_result_stats(buy_glm, evalset$buy)
-
-
-glm_y<- predict(model_glm, evalset, type="prob")[,2]
-pred <- prediction(glm_y, evalset$buy)
+# Plot of ROC curve
 roc.perf = performance(pred, measure = "tpr", x.measure = "fpr")
-glm_auc = performance(pred, measure = "auc")
-
 plot(roc.perf)
 abline(a=0, b= 1)
 
 
+#######################################################
+# Logistic Regression: GLM
+#######################################################
 
+# use caret package train function
+model_glm<-train(trainset[,-1], trainset$buy, method="glm")
+
+# predict on evalset
+buy_glm<-predict(model_glm, evalset)
+
+# summarize metrics
+glm_summary<-get_result_stats(buy_glm, evalset$buy)
+
+# use probablity predictions to calculate area unde curve
+glm_y<- predict(model_glm, evalset, type="prob")[,2]
+pred <- prediction(glm_y, evalset$buy)
+glm_auc = performance(pred, measure = "auc")
+
+
+# summary table to add all model results
 all_results<-rbind(all_results, data.frame(method="Logistic Regression", f1score=glm_summary$f1score, 
                                            acc=glm_summary$acc, precision=glm_summary$precision,
                                            recall=glm_summary$recall, AUC=round(glm_auc@y.values[[1]],6)))
 
 
 
-# Classification Tree
+#######################################################
+# Classification Tree: CART
+#######################################################
+
+# use caret package train function
 model_tree<-train(trainset[,-1], trainset$buy, method="rpart")
 
+# predict on evalset
 buy_tree<-predict(model_tree, evalset)
+
+# summarize metrics
 tree_summary<-get_result_stats(buy_tree, evalset$buy)
 
+# use probablity predictions to calculate area unde curve
 tree_y<- predict(model_tree, evalset, type="prob")[,2]
 pred <- prediction(tree_y,evalset$buy)
 tree_auc = performance(pred, measure = "auc")
 
+# summary table to add all model results
 all_results<-rbind(all_results, data.frame(method="CART", f1score=tree_summary$f1score, 
                                            acc=tree_summary$acc, precision=tree_summary$precision,
                                            recall=tree_summary$recall, AUC=round(tree_auc@y.values[[1]],6)))
 
+# fine tuning of cp parameter
 plot(model_tree)
+
+# Classification Tree plot
 plot(model_tree$finalModel)
 text(model_tree$finalModel)
 
 
-# Random Forest
-#model_forest<-randomForest(trainset[,c(6,7,11,21,22,23)], trainset$buy, mtry=3, ntree=10)
+
+#######################################################
+# Random Forest: RF
+#######################################################
+
+#Random Forest function with 100 trees
 model_forest<-randomForest(trainset[,-1], trainset$buy, ntree=100)
 
+# predict on evalset
 buy_rf<-predict(model_forest, evalset)
+
+# summarize metrics
 rf_summary<-get_result_stats(buy_rf, evalset$buy)
 
+# use probablity predictions to calculate area unde curve
 rf_y<- predict(model_forest, evalset, type="prob")[,2]
 pred <- prediction(rf_y, evalset$buy)
 forest_auc = performance(pred, measure = "auc")
 
-
+# summary table to add all model results
 all_results<-rbind(all_results, data.frame(method="Random Forest", f1score=rf_summary$f1score, 
                                            acc=rf_summary$acc, precision=rf_summary$precision,
                                            recall=rf_summary$recall, AUC=round(forest_auc@y.values[[1]],6)))
 all_results%>%knitr::kable()
 
 
+# Fine tuning of mtry
 t <- tuneRF(trainset[, -1], trainset[, 1],
             stepFactor = 0.5,
             plot = TRUE,
@@ -156,15 +201,22 @@ ggplot(imp, aes(x=reorder(varnames, -MeanDecreaseGini), weight=MeanDecreaseGini,
   ggtitle("Variable Importance of Random Forest")
 
 
+##############################################################################
+# Based on results summary the best area under the curve (which is the preferred 
+# metric for imbalanced datasets) is for the Random Forest model. Hence, this 
+# has been chosen as the final model.
 
+# However, due to the imbalanced nature of the dataset the optimum cutoff to 
+# classify the binary outcome may not be 0.5. Hence a cutoff analysis can yield
+# more accurate predictions.
 
-
-
+# The cutoff analysis uses the probability predictions for the analysis and sweeps 
+# various cutoff values to calculate maximum F score.
 ##############################################################################
 
 # Cutoff Analysis
 
-
+# user deifned function for cutoff analysis
 get_cutoff<-function(x){
   
   cutoff<-seq(0.1, 0.7, 0.025)
@@ -177,17 +229,27 @@ get_cutoff<-function(x){
   return(cutoff[which.max(f1s)])
 }
 
-
+# run cutoff analysis for random forest predictions
 rf_cutoff<-get_cutoff(rf_y) 
+
+# predict outcomes based on new cutoff
 rf_final_y<-ifelse(rf_y>rf_cutoff,1,0)
+
+# final summary for train/test data
 rf_final_stats<-get_result_stats(rf_final_y, evalset$buy)
 
 
 ################################################################
-# Test Data Results
+# Test Dataset Results
+################################################################
 
+# Use random forest model to predict probablities
 test_pred_y<- predict(model_forest, testset, type="prob")[,2]
+
+# Use cutoff from Random forest analysis to cutoff the test dataset
 test_final_y<-ifelse(test_pred_y>rf_cutoff,1,0)
+
+# get final summary
 test_stats<-get_result_stats(test_final_y, testset$buy)
 test_stats
 
