@@ -52,7 +52,7 @@ library(randomForest)
 library(ROCR)
 library(kernlab)
 
-# Option to use 6 significant sigits after the decimal point
+# Option to use 6 significant digits after the decimal point
 options(digits=6)
 
 ## getting to know the data:
