@@ -833,7 +833,7 @@ final_stats
 # Use Naive Bayes model to predict probabilities
 test_pred_y<- predict(model_nb, testset, type="prob")[,2]
 
-# Use cutoff from Random forest analysis to cutoff the test dataset
+# Use cutoff obtained from analysis to assign labels
 test_final_y<-ifelse(test_pred_y>final_cutoff,1,0)
 
 # get final summary
