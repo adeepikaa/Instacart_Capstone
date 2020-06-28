@@ -30,9 +30,11 @@ sampleset<-sample_set%>%
 
 # Use Naive Bayes model to predict probabilities
 y<- predict(model_nb, sampleset[,-c(1:3)], type="prob")[,2]
+y2<- predict(model_gbm, sampleset[,-c(1:3)], type="prob")[,2]
 
 # Use cutoff from Random forest analysis to cutoff the test dataset
 sampleset$buy<-ifelse(y>final_cutoff,1,0)
+sampleset$buy2<-ifelse(y2>final_cutoff,1,0)
 
 
 # get products that will be ordered
@@ -43,6 +45,12 @@ sample_output<-sampleset%>%
     products = paste(product_id, collapse = " ")
   )
 
+sample_output2<-sampleset%>%
+  filter(buy2==1)%>%
+  group_by(order_id)%>%
+  summarise(
+    products = paste(product_id, collapse = " ")
+  )
 
 # sample format file
 sample_orderids = read.csv('data/sample_submission.csv')
@@ -61,3 +69,21 @@ sample_submission$products<-ifelse(is.na(sample_submission$products), "None",
 
 # write the csv format file
 write.csv(sample_submission, "sample_submission.csv", row.names=F)
+
+
+
+
+
+sample_submission2<-sample_orderids%>%
+  select(order_id)%>%
+  left_join(sample_output2, by.x=order_id, by.y=order_id)
+
+# looks for any order ids not ordering any products 
+sum(is.na(sample_submission$products))
+
+# Add None to enpty orders
+sample_submission2$products<-ifelse(is.na(sample_submission2$products), "None",
+                                   sample_submission2$products)
+
+# write the csv format file
+write.csv(sample_submission2, "sample_submission2.csv", row.names=F)
