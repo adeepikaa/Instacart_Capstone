@@ -3,7 +3,7 @@
 Capstone Project: Data Science and Analytics Certificate Bootcamp with Stack Education at Framingham State University
 
 Author: Deepika Dittakavi
-Date:   June 18, 2020
+Date:   June 18, 2020 
 
 
 Introduction:
