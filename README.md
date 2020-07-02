@@ -1,5 +1,4 @@
-# Instacart_Capstone
-Capstone Project: Data Science and Analytics Certificate Program with Stack Education at Framingham State University
+# Capstone Project: Data Science and Analytics Certificate Bootcamp with Stack Education at Framingham State University
 
 Instacart Market Basket Analysis
 
