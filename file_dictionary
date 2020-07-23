@@ -18,3 +18,16 @@ create_sets.R         : combine features and create train and test sets
 models.R              : run all model analysis
 
 insta_ppt.pptx.       : presentation of the project
+
+insta_ppt.pdf.        : PDF format of the presentation
+
+######################################
+Edits made after project submission
+
+models_rev2.R          : Revised model to include GBM
+
+sample_submission.csv. : Sample CSV file submitted to Kaggle
+
+sample_submission2.csv : Revised model with minor edits and submitted to Kaggle
+
+sample_submit_code.R   : Code for edits to submit in Kaggle
